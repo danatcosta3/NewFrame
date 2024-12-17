@@ -1,0 +1,30 @@
+# Node modules - don't upload dependencies
+node_modules/
+
+# Environment variables - contains sensitive secrets (like JWT secret, API keys)
+.env
+
+# Logs - debug logs, error logs, etc.
+*.log
+
+# IDE/Editor specific files
+.vscode/
+.idea/
+
+# OS-specific files (for macOS and Windows)
+.DS_Store
+Thumbs.db
+
+# Cache, build, and temporary files
+.cache/
+dist/
+build/
+temp/
+
+# Coverage reports (for testing)
+coverage/
+
+# NPM debug files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
