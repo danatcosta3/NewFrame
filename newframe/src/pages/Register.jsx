@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 import HomeNavBar from "../components/HomeNavBar";
 import { Link, useLocation } from "react-router-dom";
 
 function Register() {
+  const [showPassword, setShowPassword] = useState(false);
   return (
     <div className="flex h-screen">
       {/* Left Side*/}
@@ -34,7 +35,7 @@ function Register() {
           <h2 className="text-4xl font-semibold">
             Create an account to continue.
           </h2>
-          <button className="mt-4 border border-black w-full py-4 flex items-center justify-center gap-2  hover:bg-[#F4F5F7]">
+          <button className="mt-4 border border-black w-full py-4 flex items-center justify-center gap-2  hover:bg-[#F4F5F7] rounded">
             <img
               src="/images/Google-Symbol.png"
               alt="GoogleLogo"
@@ -42,9 +43,11 @@ function Register() {
             />
             Sign up with Google
           </button>
-          <p className="mt-5">
-            ---------------------------or---------------------------
-          </p>
+          <div className="text-black items-center flex mt-4">
+            <hr className="flex-1 bg-black border-black" />
+            <p>OR</p>
+            <hr className="flex-1 bg-black border-black" />
+          </div>
           <div className="flex flex-col mt-3">
             <label htmlFor="email" className="text-2xl text-prim-grey-p">
               Email:
@@ -53,7 +56,7 @@ function Register() {
               id="email"
               type="email"
               placeholder="Enter your email"
-              className="py-3 px-4 border-2"
+              className="py-3 px-4 border-2 border-prim-grey-p rounded"
             />
           </div>
           <div className="flex flex-col mt-3">
@@ -62,16 +65,21 @@ function Register() {
             </label>
             <input
               id="password"
-              type="password"
+              type={showPassword ? "text" : "password"}
               placeholder="Enter your password"
-              className="py-3 px-4 border-2"
+              className="py-3 px-4 border-2 border-prim-grey-p rounded"
             />
           </div>
-          <div className="flex mt-1">
-            <input type="checkbox" name="" id="" />
+          <div className="flex mt-2">
+            <input
+              type="checkbox"
+              name="togglePass"
+              id="togglePass"
+              onClick={() => setShowPassword((prev) => !prev)}
+            />
             <p className="ml-2 text-prim-grey-p">Show Password</p>
           </div>
-          <button className="mt-4 bg-prim-blue-p text-white text-lg w-full py-4 flex items-center justify-center gap-2 hover:bg-blue-400">
+          <button className="mt-4 bg-prim-blue-p text-white text-lg w-full py-4 flex items-center justify-center gap-2 hover:bg-blue-400 rounded">
             Create an account
           </button>
           <p className="text-center mt-2 text-prim-grey-p">
