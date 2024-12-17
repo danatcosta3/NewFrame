@@ -4,6 +4,7 @@ import { Link, useLocation } from "react-router-dom";
 function HomeNavBar() {
   const location = useLocation(); // Get current route
   const isActive = (path) => location.pathname === path;
+
   return (
     <nav className="flex justify-center items-center p-4">
       <ul className="flex space-x-20 items-center text-2xl text-prim-grey-p font-bold">
