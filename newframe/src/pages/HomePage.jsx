@@ -22,7 +22,7 @@ function HomePage() {
           <button className="bg-prim-blue-p rounded text-white px-6 py-3 hover:bg-blue-400 font-normal mt-9 text-lg">
             Try For Free
           </button>
-          <button className="px-6 py-3 border-prim-grey-p border rounded-md ml-2 text-lg">
+          <button className="px-6 py-3 border-prim-grey-p border rounded-md ml-2 text-lg hover:bg-[#F4F5F7]">
             Learn More
           </button>
         </div>

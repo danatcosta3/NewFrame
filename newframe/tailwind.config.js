@@ -6,6 +6,7 @@ module.exports = {
       colors: {
         "prim-blue-p": "#267EE7",
         "prim-grey-p": "#666666",
+        "prim-offwhite": "#EEEFF2",
       },
     },
   },
