@@ -27,9 +27,9 @@ function HomeNavBar() {
         </li>
         <li>
           <Link
-            to="/Pricing"
+            to="/pricing"
             className={
-              isActive("/Pricing")
+              isActive("/pricing")
                 ? "text-prim-blue-p border-b-2 border-blue-500 pb-1"
                 : "hover:border-b-2 hover:border-blue-500 hover:pb-1"
             }
@@ -39,9 +39,9 @@ function HomeNavBar() {
         </li>
         <li>
           <Link
-            to="/AboutUs"
+            to="/aboutus"
             className={
-              isActive("/AboutUs")
+              isActive("/aboutus")
                 ? "text-prim-blue-p border-b-2 border-blue-500 pb-1"
                 : "hover:border-b-2 hover:border-blue-500 hover:pb-1"
             }
@@ -51,9 +51,9 @@ function HomeNavBar() {
         </li>
         <li>
           <Link
-            to="/Contact"
+            to="/contact"
             className={
-              isActive("/Contact")
+              isActive("/contact")
                 ? "text-prim-blue-p border-b-2 border-blue-500 pb-1"
                 : "hover:border-b-2 hover:border-blue-500 hover:pb-1"
             }
@@ -63,9 +63,9 @@ function HomeNavBar() {
         </li>
         <li>
           <Link
-            to="/LogIn"
+            to="/login"
             className={
-              isActive("/LogIn")
+              isActive("/login")
                 ? "text-prim-blue-p border-b-2 border-blue-500 pb-1"
                 : "hover:border-b-2 hover:border-blue-500 hover:pb-1"
             }
@@ -73,7 +73,7 @@ function HomeNavBar() {
             Log In
           </Link>
           <button className="bg-blue-500 rounded text-white px-2 py-1 hover:bg-blue-400 ml-4 font-normal">
-            <Link to="/Register">Sign Up</Link>
+            <Link to="/register">Sign Up</Link>
           </button>
         </li>
       </ul>
