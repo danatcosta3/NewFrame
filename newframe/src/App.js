@@ -6,6 +6,8 @@ import AboutUs from "./pages/AboutUs";
 import Register from "./pages/Register";
 import LogIn from "./pages/LogIn";
 import Contact from "./pages/Contact";
+import Dashboard from "./pages/Dashboard";
+import ProtectedRoute from "./components/ProtectedRoute";
 function App() {
   return (
     <BrowserRouter>
@@ -16,6 +18,14 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/logIn" element={<LogIn />} />
         <Route path="/contact" element={<Contact />} />
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </BrowserRouter>
   );

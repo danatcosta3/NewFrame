@@ -11,14 +11,16 @@ function Register() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log("Email:", email, "Password:", password); // Debug log
     try {
       const response = await axios.post("http://localhost:5001/api/register", {
         email,
         password,
       });
+      alert(`Sucessfully created the user ${email}`);
       console.log("Server Response:", response.data);
-      setMessage("Account created successfully! You can now log in.");
     } catch (error) {
+      alert(`Could not add user ${email}`);
       console.error("Error creating user:", error.response.data);
     }
   };
@@ -26,8 +28,8 @@ function Register() {
   return (
     <div className="flex h-screen">
       {/* Left Side*/}
-      <div className="flex flex-1 flex-col justify-center">
-        <div className="flex flex-row w-full items-center ">
+      <div className="flex flex-1 flex-col justify-center ">
+        <div className="flex justify-center w-full items-center overflow-hidden max-w-[90%] mx-auto relative">
           <img
             src="/images/Venom.jpg"
             alt="VenomPoster"
