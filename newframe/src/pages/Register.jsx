@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import HomeNavBar from "../components/HomeNavBar";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 
 function Register() {
@@ -8,7 +8,7 @@ function Register() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
+  const navigate = useNavigate();
   const handleSubmit = async (e) => {
     e.preventDefault();
     console.log("Email:", email, "Password:", password); // Debug log
@@ -17,8 +17,9 @@ function Register() {
         email,
         password,
       });
-      alert(`Sucessfully created the user ${email}`);
+      localStorage.setItem("accessToken", response.data.accessToken);
       console.log("Server Response:", response.data);
+      navigate("/dashboard");
     } catch (error) {
       alert(`Could not add user ${email}`);
       console.error("Error creating user:", error.response.data);
@@ -110,7 +111,7 @@ function Register() {
               Create an account
             </button>
             <p className="text-center mt-2 text-prim-grey-p">
-              Already have an account?
+              Already have an account?{" "}
               <Link to="/login" className="text-prim-blue-p hover:underline">
                 Click here to sign in.
               </Link>

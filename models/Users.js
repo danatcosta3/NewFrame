@@ -15,6 +15,8 @@ const userSchema = new mongoose.Schema({
     default: Date.now,
   },
   refreshToken: { type: String },
+  name: { type: String },
+  profileSetupComplete: { type: Boolean, default: false },
 });
 
 module.exports = mongoose.model("User", userSchema);

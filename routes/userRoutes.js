@@ -16,8 +16,31 @@ router.post("/register", async (req, res) => {
     }
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = new User({ email, password: hashedPassword });
+
+    //Generate tokens
+    const accessToken = jwt.sign(
+      { id: newUser._id, email: newUser.email },
+      process.env.JWT_SECRET,
+      { expiresIn: "15m" }
+    );
+
+    const refreshToken = jwt.sign(
+      { id: newUser._id, email: newUser.email },
+      process.env.REFRESH_TOKEN_SECRET,
+      { expiresIn: "7d" }
+    );
+
+    newUser.refreshToken = refreshToken;
     await newUser.save();
-    res.status(201).json({ message: "User created successfully" });
+
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    res.status(201).json({ message: "User created successfully", accessToken });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal Server Error" });
@@ -67,11 +90,14 @@ router.post("/login", async (req, res) => {
   }
 });
 
-// Protected Route: User Profile (only accessible with valid token)
 router.get("/profile", authenticateToken, async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
-    res.status(200).json({ email: user.email, id: user._id });
+    res.status(200).json({
+      email: user.email,
+      id: user._id,
+      profileSetupComplete: user.profileSetupComplete,
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal Server Error" });
@@ -113,24 +139,17 @@ router.post("/refresh", async (req, res) => {
   }
 });
 
-router.post("/logout", authenticateToken, async (req, res) => {
+router.post("/logout", async (req, res) => {
   try {
-    console.log("Logout route hit1"); // Add this for debugging
-
     const refreshToken = req.cookies.refreshToken;
     if (!refreshToken) {
-      console.log("Logout route hit2 NO TOKEN"); // Add this for debugging
-
       return res.status(204).json({ message: "No content" });
     }
 
     const user = await User.findOne({ refreshToken });
     if (!user) {
-      console.log("Logout route hit3 NO USER"); // Add this for debugging
-
       return res.status(204).json({ message: "No content" });
     }
-    console.log("Logout route hit4 USER"); // Add this for debugging
 
     user.refreshToken = null;
     await user.save();
@@ -144,6 +163,32 @@ router.post("/logout", authenticateToken, async (req, res) => {
     res.status(200).json({ message: "Logout successful" });
   } catch (error) {
     console.error("Error in /logout: ", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+});
+
+router.post("/setUserName", async (req, res) => {
+  const { name } = req.body;
+  if (!name || name.trim().length < 1 || name.length > 50) {
+    return res.status(400).json({ message: "Invalid name" });
+  }
+  try {
+    const refreshToken = req.cookies.refreshToken;
+    if (!refreshToken) {
+      return res.status(204).json({ message: "No content" });
+    }
+
+    const user = await User.findOne({ refreshToken });
+    if (!user) {
+      return res.status(204).json({ message: "No content" });
+    }
+
+    user.name = name;
+    user.profileSetupComplete = true;
+    await user.save();
+    res.status(200).json({ message: "Name set" });
+  } catch (error) {
+    console.error("Error in /setName: ", error);
     res.status(500).json({ message: "Internal Server Error" });
   }
 });

@@ -10,7 +10,7 @@ function HomeNavBar() {
       <ul className="flex space-x-20 items-center text-2xl text-prim-grey-p font-bold">
         <li>
           <h1 className="font-bold text-black">
-            <Link to="/">NewFrame</Link>
+            <Link to="/">Trey's Movies</Link>
           </h1>
         </li>
         <li>
