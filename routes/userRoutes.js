@@ -1,9 +1,9 @@
 const express = require("express");
-const bcrypt = require("bcrypt"); // Missing bcrypt import
-const jwt = require("jsonwebtoken"); // Missing jwt import
-const User = require("../models/Users"); // Import your User model
-const authenticateToken = require("../middleware/authMiddleware"); // Import your token auth middleware
-
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const User = require("../models/Users");
+const authenticateToken = require("../middleware/authMiddleware");
+const Movie = require("../models/Movies");
 const router = express.Router();
 
 // Register User
@@ -189,6 +189,53 @@ router.post("/setUserName", async (req, res) => {
     res.status(200).json({ message: "Name set" });
   } catch (error) {
     console.error("Error in /setName: ", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+});
+
+router.post("/logout", async (req, res) => {
+  try {
+    const refreshToken = req.cookies.refreshToken;
+    if (!refreshToken) {
+      return res.status(204).json({ message: "No content" });
+    }
+
+    const user = await User.findOne({ refreshToken });
+    if (!user) {
+      return res.status(204).json({ message: "No content" });
+    }
+
+    user.refreshToken = null;
+    await user.save();
+
+    res.clearCookie("refreshToken", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+    });
+
+    res.status(200).json({ message: "Logout successful" });
+  } catch (error) {
+    console.error("Error in /logout: ", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+});
+
+router.post("/movie", async (req, res) => {
+  const { name } = req.body; // Ensure you're using "name" and not "movieName"
+
+  try {
+    const movie = await Movie.findOne({
+      title: { $regex: name, $options: "i" }, // Adjust to the correct field (e.g., title)
+    });
+
+    if (movie) {
+      return res.json(movie);
+    } else {
+      return res.status(404).json({ message: "Movie not found in database." });
+    }
+  } catch (error) {
+    console.error("Error fetching movie:", error);
     res.status(500).json({ message: "Internal Server Error" });
   }
 });

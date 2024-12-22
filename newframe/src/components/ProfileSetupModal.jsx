@@ -22,7 +22,6 @@ function ProfileSetupModal({ onSubmit }) {
           },
         }
       );
-      alert("Name set successfully!");
       onSubmit();
     } catch (error) {
       alert("Error saving your name, please try again.");
