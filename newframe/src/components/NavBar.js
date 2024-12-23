@@ -16,61 +16,42 @@ function NavBar() {
       .catch((err) => console.error("Logout failed: ", err));
   }
   return (
-    <nav className="flex justify-center items-center p-4">
-      <ul className="flex space-x-20 items-center text-2xl text-prim-grey-p font-bold">
-        <li>
-          <h1 className="font-bold text-black">
-            <Link to="/">Trey's Movies</Link>
-          </h1>
-        </li>
-
-        <li>
-          <Link
-            to="/dashboard"
-            className={
-              isActive("/dashboard")
-                ? "text-prim-blue-p border-b-2 border-blue-500 pb-1"
-                : "hover:border-b-2 hover:border-blue-500 hover:pb-1"
-            }
-          >
-            Dashboard
-          </Link>
-        </li>
-        <li>
-          <Link
-            to="/search"
-            className={
-              isActive("/search")
-                ? "text-prim-blue-p border-b-2 border-blue-500 pb-1"
-                : "hover:border-b-2 hover:border-blue-500 hover:pb-1"
-            }
-          >
-            Search
-          </Link>
-        </li>
-        <li>
-          <Link
-            to="/watchlist"
-            className={
-              isActive("/watchlist")
-                ? "text-prim-blue-p border-b-2 border-blue-500 pb-1"
-                : "hover:border-b-2 hover:border-blue-500 hover:pb-1"
-            }
-          >
-            Watch List
-          </Link>
-        </li>
-        <li>
-          <button
-            className="bg-blue-500 rounded text-white px-2 py-1 hover:bg-blue-400 ml-4 font-normal"
-            onClick={handleLogout}
-          >
-            Log out
-          </button>
-          <button className="border-4 border-black rounded text-white px-2 py-1 hover:bg-blue-400 ml-4 font-normal">
-            <Link to="/profile">👤</Link>
-          </button>
-        </li>
+    <nav className="fixed left-0 top-0 h-screen w-1/5 p-4 bg-prim-offwhite rounded-r-2xl hover:ring-2 ring-prim-blue-p">
+      <h1 className="font-bold text-black text-xl">
+        <Link to="/">Trey's Movies</Link>
+      </h1>
+      <ul className="flex flex-col text-prim-grey-p font-semibold gap-12 mt-10">
+        <div>
+          <li className="text-prim-blue-p text-xl">Dashboard</li>
+          <li className="mt-1 hover:bg-slate-300 rounded">Overview</li>
+          <li className="mt-1 hover:bg-slate-300 rounded">Trending</li>
+          <li className="mt-1 hover:bg-slate-300 rounded">For you</li>
+        </div>
+        <div>
+          <li className="text-prim-blue-p text-xl">Movies</li>
+          <li className="mt-1 hover:bg-slate-300 rounded">Watch List</li>
+          <li className="mt-1 hover:bg-slate-300 rounded">Rate Movies</li>
+          <li className="mt-1 hover:bg-slate-300 rounded">For you</li>
+          <li className="mt-1 hover:bg-slate-300 rounded">Explore</li>
+        </div>
+        <div>
+          <li className="text-prim-blue-p text-xl">Profile</li>
+          <li className="mt-1 hover:bg-slate-300 rounded">User</li>
+          <li className="mt-1 hover:bg-slate-300 rounded">Friends</li>
+        </div>
+        <div>
+          <li className="text-prim-blue-p text-xl">Contact</li>
+          <li className="mt-1 hover:bg-slate-300 rounded">Contact Us</li>
+          <li className="mt-1 hover:bg-slate-300 rounded">
+            Follow My Linkedin
+          </li>
+        </div>
+        <button
+          onClick={handleLogout}
+          className="bg-blue-500 text-white px-4 py-2 mt-4 rounded-md"
+        >
+          Log Out
+        </button>
       </ul>
     </nav>
   );

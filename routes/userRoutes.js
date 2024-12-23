@@ -222,11 +222,11 @@ router.post("/logout", async (req, res) => {
 });
 
 router.post("/movie", async (req, res) => {
-  const { name } = req.body; // Ensure you're using "name" and not "movieName"
+  const { name } = req.body;
 
   try {
     const movie = await Movie.findOne({
-      title: { $regex: name, $options: "i" }, // Adjust to the correct field (e.g., title)
+      title: { $regex: name, $options: "i" },
     });
 
     if (movie) {
@@ -236,6 +236,39 @@ router.post("/movie", async (req, res) => {
     }
   } catch (error) {
     console.error("Error fetching movie:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+});
+
+router.post("/saveRatings", authenticateToken, async (req, res) => {
+  const { movieRatings } = req.body;
+
+  try {
+    const user = await User.findById(req.user.id);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    movieRatings.forEach(async (rating) => {
+      const existingRating = user.movieRatings.find(
+        (item) => item.tmdb_id === rating.tmdb_id
+      );
+
+      if (existingRating) {
+        existingRating.rating = rating.rating;
+      } else {
+        user.movieRatings.push({
+          tmdb_id: rating.tmdb_id,
+          rating: Number(rating.rating),
+        });
+      }
+    });
+    await user.save();
+
+    res.status(200).json({ message: "Ratings saved successfully" });
+  } catch (error) {
+    console.error("Error saving ratings:", error);
     res.status(500).json({ message: "Internal Server Error" });
   }
 });

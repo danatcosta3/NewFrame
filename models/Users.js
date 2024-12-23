@@ -17,6 +17,12 @@ const userSchema = new mongoose.Schema({
   refreshToken: { type: String },
   name: { type: String },
   profileSetupComplete: { type: Boolean, default: false },
+  movieRatings: [
+    {
+      tmdb_id: { type: Number, required: true },
+      rating: { type: Number, required: true },
+    },
+  ],
 });
 
 module.exports = mongoose.model("User", userSchema);

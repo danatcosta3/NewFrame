@@ -8,13 +8,11 @@ function HomePage() {
       <div className="grid grid-cols-2 gap-8 items-center h-[calc(100vh-88px)] mx-auto px-8 max-w-screen-xl">
         {/* Left Text Section */}
         <div className="max-w-lg">
-          <p className="text-xl md:italic">
-            Let's Save You Time Picking a Movie
-          </p>
-          <h2 className="text-6xl mt-3 leading-tight">
+          {/* <p className="text-lg text-prim-grey-p">-FREE ACCESS-</p> */}
+          <h2 className="text-6xl mt-3 leading-tight font-bold ">
             The best way to find your next movie.
           </h2>
-          <h4 className="text-2xl mt-9 leading-relaxed">
+          <h4 className="text-2xl mt-3 leading-relaxed">
             Get personalized recommendations based on your preferences.
             Collaborate with a partner to choose the perfect film for any
             occasion. Explore movies tailored to your tastes and interests.
