@@ -16,7 +16,7 @@ function NavBar() {
       .catch((err) => console.error("Logout failed: ", err));
   }
   return (
-    <nav className="fixed left-0 top-0 h-screen w-1/5 p-4 bg-prim-offwhite rounded-r-2xl hover:ring-2 ring-prim-blue-p">
+    <nav className="fixed z-50 left-0 top-0 h-screen w-1/5 p-4 bg-prim-offwhite rounded-r-2xl hover:ring-2 ring-prim-blue-p">
       <h1 className="font-bold text-black text-xl">
         <Link to="/">Trey's Movies</Link>
       </h1>

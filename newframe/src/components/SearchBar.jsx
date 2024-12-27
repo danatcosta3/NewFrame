@@ -5,7 +5,7 @@ function SearchBar() {
     <div className="relative w-full max-w-md">
       <input
         type="text"
-        className="w-full py-2 pl-12 pr-4 bg-prim-offwhite rounded-3xl text-gray-700 focus:outline-none hover:ring-2 focus:ring-2 focus:ring-blue-500"
+        className="w-full py-2 pl-12 pr-4 bg-prim-offwhite rounded-3xl text-gray-700 focus:outline-none hover:ring-2 focus:ring-2 focus:ring-blue-500 hover:ring-blue-500"
         placeholder="Search for movies..."
       />
       {/* Search Icon */}

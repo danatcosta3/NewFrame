@@ -150,24 +150,33 @@ function Dashboard() {
     setShowRatingModal(false);
   };
   return (
-    <div className="flex min-h-screen">
+    <div className="min-h-screen">
+      {/* Show Profile Setup Modal */}
       {showProfileModal && <ProfileSetupModal onSubmit={handleProfileSubmit} />}
-      {showRatingModal && <RatingModal onSubmit={handleRatingSubmit} />}
-      <div className="">
-        <NavBar />
-      </div>
-      {/* Right Side Div */}
-      <div className="flex-1 ml-[20%] pt-5 pl-4">
-        <SearchBar />
-        <div className="mt-5">
-          <MovieCarousel title="Trending" movies={moviesList} />
-          <MovieCarousel title="Fot You" movies={moviesList} />
-          <MovieCarousel
-            title="Movies With Actors You Like"
-            movies={moviesList}
-          />
+
+      {/* Show Rating Modal */}
+      {showRatingModal && !showProfileModal && (
+        <RatingModal onSubmit={handleRatingSubmit} />
+      )}
+
+      {/* Render Dashboard Only if Modals Are Closed */}
+      {!showProfileModal && !showRatingModal && (
+        <div className="flex overflow-x-hidden">
+          <NavBar />
+          <div className="flex-1 ml-[20%] pt-5 pl-4">
+            <SearchBar />
+            <div className="mt-5">
+              <MovieCarousel title="Trending" movies={moviesList} />
+              <MovieCarousel title="For You" movies={moviesList} />
+              <MovieCarousel
+                title="Movies With Actors You Like"
+                movies={moviesList}
+              />
+              <MovieCarousel title="Your Watchlist" movies={moviesList} />
+            </div>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
