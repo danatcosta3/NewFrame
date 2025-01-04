@@ -5,10 +5,11 @@ function ProtectedRoute({ children }) {
   const accessToken = localStorage.getItem("accessToken");
 
   if (!accessToken) {
-    return <Navigate to="/login" />; // Redirect to login if no token
+    console.log("No access token redirecting...");
+    return <Navigate to="/login" />;
   }
 
-  return children; // If token exists, render the children (dashboard)
+  return children;
 }
 
 export default ProtectedRoute;

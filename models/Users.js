@@ -23,6 +23,17 @@ const userSchema = new mongoose.Schema({
       rating: { type: Number, required: true },
     },
   ],
+  watchlist: {
+    type: [Number],
+    default: [],
+    required: true,
+  },
+  recommendations: {
+    general: Array,
+    actors: Array,
+    genres: Object,
+    lastUpdated: Date,
+  },
 });
 
 module.exports = mongoose.model("User", userSchema);

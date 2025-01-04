@@ -6,139 +6,88 @@ import { useState } from "react";
 import axios from "axios";
 import SearchBar from "../components/SearchBar";
 import MovieCarousel from "../components/MovieCarousel";
+import { useNavigate } from "react-router-dom";
+import Footer from "../components/Footer";
+import apiClient from "../apiClient";
 
 function Dashboard() {
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [showRatingModal, setShowRatingModal] = useState(false);
-  const moviesList = [
-    {
-      title: "The Shawshank Redemption",
-      posterURL:
-        "https://image.tmdb.org/t/p/w500/9cqNxx0GxF0bflZmeSMuL5tnGzr.jpg",
-      tmdb_id: 278,
-    },
-    {
-      title: "Inception",
-      posterURL:
-        "https://image.tmdb.org/t/p/w500/oYuLEt3zVCKq57qu2F8dT7NIa6f.jpg",
-      tmdb_id: 27205,
-    },
-    {
-      title: "The Godfather",
-      posterURL:
-        "https://image.tmdb.org/t/p/w500/3bhkrj58Vtu7enYsRolD1fZdja1.jpg",
-      tmdb_id: 238,
-    },
-    {
-      title: "Pulp Fiction",
-      posterURL:
-        "https://image.tmdb.org/t/p/w500/vQWk5YBFWF4bZaofAbv0tShwBvQ.jpg",
-      tmdb_id: 680,
-    },
-    {
-      title: "Titanic",
-      posterURL:
-        "https://image.tmdb.org/t/p/w500/9xjZS2rlVxm8SFx8kPC3aIGCOYQ.jpg",
-      tmdb_id: 597,
-    },
-    {
-      title: "The Notebook",
-      posterURL:
-        "https://image.tmdb.org/t/p/w500/rNzQyW4f8B8cQeg7Dgj3n6eT5k9.jpg",
-      tmdb_id: 11036,
-    },
-    {
-      title: "Call Me by Your Name",
-      posterURL:
-        "https://image.tmdb.org/t/p/w500/mZ4gBdfkhP9tvLH1DO4m4HYtiyi.jpg",
-      tmdb_id: 398818,
-    },
-    {
-      title: "Frozen",
-      posterURL:
-        "https://image.tmdb.org/t/p/w500/mbPrrbt8bSLcHSBCHnRclPlMZPl.jpg",
-      tmdb_id: 109445,
-    },
-    {
-      title: "The Lion King",
-      posterURL:
-        "https://image.tmdb.org/t/p/w500/sKCr78MXSLixwmZ8DyJLrpMsd15.jpg",
-      tmdb_id: 8587,
-    },
-    {
-      title: "La La Land",
-      posterURL:
-        "https://image.tmdb.org/t/p/w500/uDO8zWDhfWwoFdKS4fzkUJt0Rf0.jpg",
-      tmdb_id: 313369,
-    },
-    {
-      title: "The Matrix",
-      posterURL:
-        "https://image.tmdb.org/t/p/w500/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg",
-      tmdb_id: 603,
-    },
-    {
-      title: "The Princess Diaries",
-      posterURL:
-        "https://image.tmdb.org/t/p/w500/wA4lgl8gmoICSShviCkEB61nIBB.jpg",
-      tmdb_id: 9880,
-    },
-    {
-      title: "Wonder Woman",
-      posterURL:
-        "https://image.tmdb.org/t/p/w500/imekS7f1OuHyUP2LAiTEM0zBzUz.jpg",
-      tmdb_id: 297762,
-    },
-    {
-      title: "The Avengers",
-      posterURL:
-        "https://image.tmdb.org/t/p/w500/RYMX2wcKCBAr24UyPD7xwmjaTn.jpg",
-      tmdb_id: 24428,
-    },
-    {
-      title: "Legally Blonde",
-      posterURL:
-        "https://image.tmdb.org/t/p/w500/9ohlMrJHQqKhfUKh7Zr3JQqHNLZ.jpg",
-      tmdb_id: 8835,
-    },
-    {
-      title: "Forrest Gump",
-      posterURL:
-        "https://image.tmdb.org/t/p/w500/arw2vcBveWOVZr6pxd9XTd1TdQa.jpg",
-      tmdb_id: 13,
-    },
-    {
-      title: "Clueless",
-      posterURL:
-        "https://image.tmdb.org/t/p/w500/i6oWPOklGIDKG45tPjcLNH0fRNO.jpg",
-      tmdb_id: 9603,
-    },
-    {
-      title: "Step Brothers",
-      posterURL:
-        "https://image.tmdb.org/t/p/w500/wRR6U3K3v2iQsG3uw7ehz1ctRyT.jpg",
-      tmdb_id: 12133,
-    },
-  ];
+  const [trendingMovies, setTrendingMovies] = useState([]);
+  const [watchlist, setWatchlist] = useState([]);
+  const [general, setGeneral] = useState([]);
+  const [actors, setActors] = useState([]);
+  const [genres, setGenres] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [isFetchingRecommendations, setIsFetchingRecommendations] =
+    useState(false);
+
+  const navigate = useNavigate();
+
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const response = await axios.get("http://localhost:5001/api/profile", {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-          },
-        });
-
+        const response = await apiClient.get("/profile");
         const { profileSetupComplete } = response.data;
-        console.log(response.data);
-        if (profileSetupComplete === false) {
+
+        if (!profileSetupComplete) {
           setShowProfileModal(true);
+        } else {
+          fetchRecommendations();
         }
       } catch (error) {
-        console.log("Error fetching user data in dashboard: ", error);
+        console.error("Error fetching user data in dashboard: ", error);
       }
     };
+
     fetchUserData();
+  }, []);
+
+  useEffect(() => {
+    const fetchTrendingMovies = async () => {
+      try {
+        const response = await apiClient.get("/movies/trending");
+        setTrendingMovies(response.data || []);
+      } catch (error) {
+        console.error("Error fetching trending movies:", error);
+      }
+    };
+
+    fetchTrendingMovies();
+  }, []);
+
+  const fetchRecommendations = async () => {
+    if (isFetchingRecommendations) return;
+    setIsFetchingRecommendations(true);
+
+    try {
+      const response = await apiClient.get("/recommendations");
+
+      if (response.data) {
+        const { general = [], genres = {}, actors = [] } = response.data;
+
+        setGeneral(general);
+        setGenres(genres);
+        setActors(actors);
+      }
+    } catch (error) {
+      console.error("Error fetching recommendations:", error);
+    } finally {
+      setLoading(false);
+      setIsFetchingRecommendations(false);
+    }
+  };
+
+  useEffect(() => {
+    const fetchWatchlist = async () => {
+      try {
+        const response = await apiClient.get("/watchlist/get");
+        setWatchlist(response.data);
+      } catch (error) {
+        console.log("Error fetching watchlist: ", error);
+      }
+    };
+    fetchWatchlist();
   }, []);
 
   const handleProfileSubmit = () => {
@@ -148,35 +97,63 @@ function Dashboard() {
 
   const handleRatingSubmit = () => {
     setShowRatingModal(false);
+    fetchRecommendations();
   };
+
+  const handleSearch = (movie) => {
+    if (movie && movie.tmdb_id) {
+      navigate(`/movies/${movie.tmdb_id}`);
+    } else {
+      console.error("Invalid movie object:", movie);
+    }
+  };
+
   return (
     <div className="min-h-screen">
-      {/* Show Profile Setup Modal */}
       {showProfileModal && <ProfileSetupModal onSubmit={handleProfileSubmit} />}
-
-      {/* Show Rating Modal */}
       {showRatingModal && !showProfileModal && (
         <RatingModal onSubmit={handleRatingSubmit} />
       )}
-
-      {/* Render Dashboard Only if Modals Are Closed */}
-      {!showProfileModal && !showRatingModal && (
+      {loading && (
+        <div className="loading-modal">
+          <p>Loading recommendations...</p>
+        </div>
+      )}
+      {!showProfileModal && !showRatingModal && !loading && (
         <div className="flex overflow-x-hidden">
           <NavBar />
           <div className="flex-1 ml-[20%] pt-5 pl-4">
-            <SearchBar />
+            <SearchBar onSearch={handleSearch} />
             <div className="mt-5">
-              <MovieCarousel title="Trending" movies={moviesList} />
-              <MovieCarousel title="For You" movies={moviesList} />
+              <MovieCarousel
+                title="For You"
+                movies={general.filter((movie) => movie?.tmdb_id)}
+                nav={`/category/explore`}
+              />
+              <MovieCarousel
+                title="Trending"
+                movies={trendingMovies}
+                nav={`/category/trending`}
+              />
               <MovieCarousel
                 title="Movies With Actors You Like"
-                movies={moviesList}
+                movies={actors.filter((movie) => movie?.tmdb_id)}
+                nav={`/category/actors`}
               />
-              <MovieCarousel title="Your Watchlist" movies={moviesList} />
+              {Object.entries(genres).map(([genre, movies]) => (
+                <MovieCarousel
+                  key={genre}
+                  title={`${genre} Movies`}
+                  movies={movies.filter((movie) => movie?.tmdb_id)}
+                  nav={`/category/${genre}`}
+                />
+              ))}
+              <MovieCarousel title="Your Watchlist" movies={watchlist} />
             </div>
           </div>
         </div>
       )}
+      <Footer />
     </div>
   );
 }

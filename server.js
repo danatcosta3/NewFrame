@@ -17,7 +17,10 @@ app.use(
 app.use("/api", userRoutes);
 
 mongoose
-  .connect(process.env.MONGO_URI)
+  .connect(process.env.MONGO_URI, {
+    socketTimeoutMS: 60000,
+    connectTimeoutMS: 60000,
+  })
   .then(() => console.log("MongoDB connected"))
   .catch((err) => console.error("MongoDB connection error:", err));
 

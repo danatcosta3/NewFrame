@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import HomeNavBar from "../components/HomeNavBar";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-
+import Footer from "../components/Footer";
 function Login() {
   const [showPassword, setShowPassword] = useState(false);
 

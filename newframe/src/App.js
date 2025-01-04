@@ -7,7 +7,11 @@ import Register from "./pages/Register";
 import LogIn from "./pages/LogIn";
 import Contact from "./pages/Contact";
 import Dashboard from "./pages/Dashboard";
+import Watchlist from "./pages/Watchlist";
 import ProtectedRoute from "./components/ProtectedRoute";
+import MovieDetails from "./pages/MovieDetails";
+import CategoryPage from "./pages/CategoryPage";
+
 function App() {
   return (
     <BrowserRouter>
@@ -23,6 +27,30 @@ function App() {
           element={
             <ProtectedRoute>
               <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/movies/:id"
+          element={
+            <ProtectedRoute>
+              <MovieDetails />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/watchlist"
+          element={
+            <ProtectedRoute>
+              <Watchlist />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/category/:genre"
+          element={
+            <ProtectedRoute>
+              <CategoryPage />
             </ProtectedRoute>
           }
         />

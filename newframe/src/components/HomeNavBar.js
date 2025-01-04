@@ -1,9 +1,31 @@
 import React from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import apiClient from "../apiClient";
 
 function HomeNavBar() {
   const location = useLocation(); // Get current route
+  const navigate = useNavigate();
+
   const isActive = (path) => location.pathname === path;
+
+  const handleNavigation = (path) => {
+    if (path === "/register" || path === "/login") {
+      navigate(path);
+      return;
+    }
+
+    apiClient
+      .get("/profile")
+      .then((response) => {
+        if (response.status === 200) {
+          navigate("/dashboard");
+        }
+      })
+      .catch((error) => {
+        console.log("User not logged in.");
+        navigate(path);
+      });
+  };
 
   return (
     <nav className="flex justify-center items-center p-4">
@@ -62,8 +84,8 @@ function HomeNavBar() {
           </Link>
         </li>
         <li>
-          <Link
-            to="/login"
+          <button
+            onClick={() => handleNavigation("/login")}
             className={
               isActive("/login")
                 ? "text-prim-blue-p border-b-2 border-blue-500 pb-1"
@@ -71,13 +93,17 @@ function HomeNavBar() {
             }
           >
             Log In
-          </Link>
-          <button className="bg-blue-500 rounded text-white px-2 py-1 hover:bg-blue-400 ml-4 font-normal">
-            <Link to="/register">Sign Up</Link>
+          </button>
+          <button
+            onClick={() => handleNavigation("/register")}
+            className="bg-blue-500 rounded text-white px-2 py-1 hover:bg-blue-400 ml-4 font-normal"
+          >
+            Sign Up
           </button>
         </li>
       </ul>
     </nav>
   );
 }
+
 export default HomeNavBar;

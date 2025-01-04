@@ -1,11 +1,11 @@
 import React from "react";
 import HomeNavBar from "../components/HomeNavBar";
-
+import Footer from "../components/Footer";
 function HomePage() {
   return (
     <div>
       <HomeNavBar />
-      <div className="grid grid-cols-2 gap-8 items-center h-[calc(100vh-88px)] mx-auto px-8 max-w-screen-xl">
+      <div className="grid grid-cols-2 gap-8 items-center h-[calc(100vh-100px)] mx-auto px-8 max-w-screen-xl">
         {/* Left Text Section */}
         <div className="max-w-lg">
           {/* <p className="text-lg text-prim-grey-p">-FREE ACCESS-</p> */}
@@ -44,6 +44,7 @@ function HomePage() {
           />
         </div>
       </div>
+      <Footer />
     </div>
   );
 }

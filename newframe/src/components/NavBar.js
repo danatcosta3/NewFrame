@@ -23,16 +23,23 @@ function NavBar() {
       <ul className="flex flex-col text-prim-grey-p font-semibold gap-12 mt-10">
         <div>
           <li className="text-prim-blue-p text-xl">Dashboard</li>
-          <li className="mt-1 hover:bg-slate-300 rounded">Overview</li>
-          <li className="mt-1 hover:bg-slate-300 rounded">Trending</li>
-          <li className="mt-1 hover:bg-slate-300 rounded">For you</li>
+          <Link to="/dashboard">
+            <li className="mt-1 hover:bg-slate-300 rounded">Overview</li>
+          </Link>
+          <Link to="/category/trending">
+            <li className="mt-1 hover:bg-slate-300 rounded">Trending</li>
+          </Link>
+          <li className="mt-1 hover:bg-slate-300 rounded">Rate Movies</li>
         </div>
         <div>
           <li className="text-prim-blue-p text-xl">Movies</li>
-          <li className="mt-1 hover:bg-slate-300 rounded">Watch List</li>
-          <li className="mt-1 hover:bg-slate-300 rounded">Rate Movies</li>
           <li className="mt-1 hover:bg-slate-300 rounded">For you</li>
-          <li className="mt-1 hover:bg-slate-300 rounded">Explore</li>
+          <Link to="/watchlist">
+            <li className="mt-1 hover:bg-slate-300 rounded">Watch List</li>
+          </Link>
+          <Link to="/category/actors">
+            <li className="mt-1 hover:bg-slate-300 rounded">Similar Actors</li>
+          </Link>
         </div>
         <div>
           <li className="text-prim-blue-p text-xl">Profile</li>
@@ -42,10 +49,13 @@ function NavBar() {
         <div>
           <li className="text-prim-blue-p text-xl">Contact</li>
           <li className="mt-1 hover:bg-slate-300 rounded">Contact Us</li>
-          <li className="mt-1 hover:bg-slate-300 rounded">
-            Follow My Linkedin
-          </li>
+          <Link to="https://www.linkedin.com/in/danatcosta3/">
+            <li className="mt-1 hover:bg-slate-300 rounded">
+              Connect With Me On Linkedin
+            </li>
+          </Link>
         </div>
+
         <button
           onClick={handleLogout}
           className="bg-blue-500 text-white px-4 py-2 mt-4 rounded-md"
