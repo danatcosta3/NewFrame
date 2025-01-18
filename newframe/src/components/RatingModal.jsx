@@ -1,6 +1,7 @@
 import axios from "axios";
 import React, { useState, useEffect } from "react";
 import MovieWithRating from "./MovieWithRating";
+import apiClient from "../apiClient";
 
 function RatingModal({ onSubmit }) {
   const [movieRatings, setMovieRatings] = useState({});
@@ -118,31 +119,35 @@ function RatingModal({ onSubmit }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      const filteredRatings = Object.entries(movieRatings)
-        .filter(([_, rating]) => rating > 0)
-        .map(([tmdb_id, rating]) => ({
-          tmdb_id: parseInt(tmdb_id),
-          rating,
-        }));
+    if (Object.keys(movieRatings).length < 5) {
+      alert("Please enter at least 5 ratings.");
+    } else {
+      try {
+        const filteredRatings = Object.entries(movieRatings)
+          .filter(([_, rating]) => rating > 0)
+          .map(([tmdb_id, rating]) => ({
+            tmdb_id: parseInt(tmdb_id),
+            rating,
+          }));
 
-      const response = await axios.post(
-        "http://localhost:5001/api/saveRatings",
-        {
-          movieRatings: filteredRatings,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        const response = await axios.post(
+          "http://localhost:5001/api/saveRatings",
+          {
+            movieRatings: filteredRatings,
           },
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+          }
+        );
+        if (response.status === 200) {
+          onSubmit();
         }
-      );
-      if (response.status === 200) {
-        onSubmit();
+      } catch (error) {
+        console.error("Error saving ratings", error);
+        alert("Error saving ratings. Please try again.");
       }
-    } catch (error) {
-      console.error("Error saving ratings", error);
-      alert("Error saving ratings. Please try again.");
     }
   };
 

@@ -1,30 +1,18 @@
 import React from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import apiClient from "../apiClient";
 
 function HomeNavBar() {
   const location = useLocation(); // Get current route
   const navigate = useNavigate();
-
   const isActive = (path) => location.pathname === path;
 
   const handleNavigation = (path) => {
-    if (path === "/register" || path === "/login") {
+    const token = localStorage.getItem("accessToken");
+    if (token) {
+      navigate("/dashboard");
+    } else {
       navigate(path);
-      return;
     }
-
-    apiClient
-      .get("/profile")
-      .then((response) => {
-        if (response.status === 200) {
-          navigate("/dashboard");
-        }
-      })
-      .catch((error) => {
-        console.log("User not logged in.");
-        navigate(path);
-      });
   };
 
   return (
@@ -47,30 +35,7 @@ function HomeNavBar() {
             Home
           </Link>
         </li>
-        <li>
-          <Link
-            to="/pricing"
-            className={
-              isActive("/pricing")
-                ? "text-prim-blue-p border-b-2 border-blue-500 pb-1"
-                : "hover:border-b-2 hover:border-blue-500 hover:pb-1"
-            }
-          >
-            Pricing
-          </Link>
-        </li>
-        <li>
-          <Link
-            to="/aboutus"
-            className={
-              isActive("/aboutus")
-                ? "text-prim-blue-p border-b-2 border-blue-500 pb-1"
-                : "hover:border-b-2 hover:border-blue-500 hover:pb-1"
-            }
-          >
-            About Us
-          </Link>
-        </li>
+
         <li>
           <Link
             to="/contact"

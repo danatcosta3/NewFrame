@@ -240,6 +240,21 @@ router.get("/movies/actors", authenticateToken, async (req, res) => {
   }
 });
 
+router.get("/movies/explore", authenticateToken, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const actorMovies = user.recommendations.general || [];
+    res.status(200).json(actorMovies);
+  } catch (error) {
+    console.error("Error fetching actor-based recommendations:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+});
+
 router.get("/movies/search", async (req, res) => {
   const { query } = req.query;
 
@@ -379,7 +394,6 @@ router.post("/watchlist", async (req, res) => {
     return res.status(500).json({ message: "Error adding to watchlist" });
   }
 });
-
 router.post("/saveRatings", authenticateToken, async (req, res) => {
   const { movieRatings } = req.body;
 
@@ -390,25 +404,60 @@ router.post("/saveRatings", authenticateToken, async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    movieRatings.forEach(async (rating) => {
+    // Update or add movie ratings
+    movieRatings.forEach(({ tmdb_id, rating }) => {
       const existingRating = user.movieRatings.find(
-        (item) => item.tmdb_id === rating.tmdb_id
+        (item) => item.tmdb_id === tmdb_id
       );
 
       if (existingRating) {
-        existingRating.rating = rating.rating;
+        existingRating.rating = rating;
       } else {
-        user.movieRatings.push({
-          tmdb_id: rating.tmdb_id,
-          rating: Number(rating.rating),
-        });
+        user.movieRatings.push({ tmdb_id, rating: Number(rating) });
       }
     });
+
+    // Set recommendations status to "loading"
+    if (!user.recommendations) {
+      user.recommendations = { status: "loading" };
+    } else {
+      user.recommendations.status = "loading"; // Ensure status is updated
+    }
+
     await user.save();
 
-    res.status(200).json({ message: "Ratings saved successfully" });
+    // Trigger the worker thread to update recommendations
+    const worker = new Worker("./utils/recommendationWorker.js");
+    worker.postMessage(user._id.toString());
+
+    worker.on("message", (message) => {
+      if (message.status === "success") {
+        console.log(
+          `Worker: Recommendations updated successfully for user ${user._id}`
+        );
+      } else {
+        console.error(
+          "Worker: Failed to update recommendations:",
+          message.error
+        );
+      }
+    });
+
+    worker.on("error", (error) => {
+      console.error("Worker encountered an error:", error);
+    });
+
+    worker.on("exit", (code) => {
+      if (code !== 0) {
+        console.error(`Worker stopped with exit code ${code}`);
+      }
+    });
+
+    res
+      .status(200)
+      .json({ message: "Ratings saved. Recommendations are being updated." });
   } catch (error) {
-    console.error("Error saving ratings:", error);
+    console.error("Error in saveRatings:", error);
     res.status(500).json({ message: "Internal Server Error" });
   }
 });
@@ -463,96 +512,71 @@ router.get("/movies/:id", async (req, res) => {
     res.status(500).json({ message: "Internal Server Error" });
   }
 });
-router.get("/recommendations", async (req, res) => {
+router.get("/recommendations", authenticateToken, async (req, res) => {
   try {
-    const refreshToken = req.cookies.refreshToken;
+    const user = await User.findById(req.user.id);
 
-    if (!refreshToken) {
-      return res.status(401).json({ message: "Unauthorized access" });
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
     }
 
-    const user = await User.findOne({ refreshToken });
-
-    if (!user || !user.movieRatings || user.movieRatings.length === 0) {
+    if (!user.recommendations) {
       return res.status(200).json({
+        status: "loading",
         general: [],
         actors: [],
         genres: {},
       });
     }
 
-    if (
-      user.recommendations &&
-      user.recommendations.lastUpdated &&
-      (Date.now() - new Date(user.recommendations.lastUpdated)) / 1000 < 86400
-    ) {
-      return res.status(200).json(user.recommendations);
-    }
-
-    const ratedMovies = await Promise.all(
-      user.movieRatings.map(async ({ tmdb_id, rating }) => {
-        const movie = await Movie.findOne({ tmdb_id });
-        return movie ? { ratedMovie: movie, rating } : null;
-      })
-    );
-
-    const userRatings = ratedMovies.filter((entry) => entry !== null);
-
-    const sampleMovies = await Movie.aggregate([
-      { $sample: { size: 2000 } },
-      {
-        $match: {
-          title: { $not: /2|Part|Chapter|III|IV|V/i },
-        },
-      },
-    ]);
-
-    const recommendations = await generateRecommendations(
-      userRatings,
-      sampleMovies
-    );
-
-    user.recommendations = {
-      ...recommendations,
-      lastUpdated: new Date(),
+    const responseData = {
+      status: user.recommendations.status || "ready",
+      general: user.recommendations.general || [],
+      actors: user.recommendations.actors || [],
+      genres: user.recommendations.genres || {},
     };
-    await user.save();
 
-    res.status(200).json(recommendations);
+    res.status(200).json(responseData);
   } catch (error) {
     console.error("Error in recommendations route:", error);
-    res.status(500).json({ message: "Internal Server Error" });
+    res.status(500).json({ message: "Internal Server Error." });
   }
 });
 
 router.post("/saveRating", authenticateToken, async (req, res) => {
-  const { movieRatings } = req.body;
+  const { tmdb_id, rating } = req.body;
 
-  if (!movieRatings || !Array.isArray(movieRatings)) {
-    return res.status(400).json({ message: "Invalid movieRatings format." });
+  if (!tmdb_id || rating == null) {
+    return res
+      .status(400)
+      .json({ message: `Invalid data provided. ${tmdb_id}  ${rating}` });
   }
 
   try {
     const user = await User.findById(req.user.id);
+
     if (!user) {
       return res.status(404).json({ message: "User not found." });
     }
 
-    // Update or add movie ratings
-    movieRatings.forEach(({ tmdb_id, rating }) => {
-      const existingRating = user.movieRatings.find(
-        (item) => item.tmdb_id === tmdb_id
-      );
-      if (existingRating) {
-        existingRating.rating = rating;
-      } else {
-        user.movieRatings.push({ tmdb_id, rating: Number(rating) });
-      }
-    });
+    const existingRating = user.movieRatings.find(
+      (item) => item.tmdb_id === tmdb_id
+    );
+
+    if (existingRating) {
+      existingRating.rating = rating;
+    } else {
+      user.movieRatings.push({ tmdb_id, rating: Number(rating) });
+    }
+
+    if (!user.recommendations) {
+      user.recommendations = { status: "loading" };
+    } else {
+      user.recommendations.status = "loading";
+    }
 
     await user.save();
 
-    // Start the recommendation worker
     const worker = new Worker("./utils/recommendationWorker.js");
     worker.postMessage(user._id.toString());
 
@@ -579,9 +603,11 @@ router.post("/saveRating", authenticateToken, async (req, res) => {
       }
     });
 
-    res.status(200).json({ message: "Rating saved successfully." });
+    res
+      .status(200)
+      .json({ message: "Rating saved. Recommendations are being updated." });
   } catch (error) {
-    console.error("Error saving ratings:", error);
+    console.error("Error in saveRating:", error);
     res.status(500).json({ message: "Internal Server Error." });
   }
 });

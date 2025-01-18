@@ -11,7 +11,8 @@ function RateMovieModal({ handleCloseRate, movieId, handleCloseRateWO }) {
   const handleSubmit = async (ratingValue) => {
     try {
       const response = await apiClient.post("/saveRating", {
-        movieRatings: [{ tmdb_id: movieId, rating: ratingValue }],
+        tmdb_id: movieId,
+        rating: ratingValue,
       });
 
       if (response.status === 200) {

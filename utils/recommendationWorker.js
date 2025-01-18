@@ -14,7 +14,7 @@ const { generateRecommendations } = require("./similarityService");
     console.log("Worker: Connected to MongoDB");
   } catch (error) {
     console.error("Worker: Failed to connect to MongoDB", error);
-    process.exit(1); // Exit worker if connection fails
+    process.exit(1);
   }
 })();
 
@@ -31,20 +31,51 @@ parentPort.on("message", async (userId) => {
     if (!user) throw new Error("User not found");
 
     console.log("Worker: Fetching all movies for recommendations...");
-    const allMovies = await Movie.find({
-      title: { $not: /2|Part|Chapter|III|IV|V/i }, // Avoid sequels
-    });
+    let allMovies;
+
+    if (!user.recommendations || !user.recommendations.genres) {
+      console.log("Worker: Recommendations are empty. Using smaller dataset.");
+      allMovies = await Movie.aggregate([
+        {
+          $match: {
+            genre: { $exists: true, $type: "array", $ne: [] },
+            title: { $not: /2|Part|Chapter|III|IV|V/i },
+            tmdb_id: { $exists: true },
+          },
+        },
+        { $sample: { size: 500 } },
+      ]);
+      allMovies = allMovies.map((movie) => new Movie(movie));
+    } else {
+      allMovies = await Movie.find({
+        title: { $not: /2|Part|Chapter|III|IV|V/i },
+      });
+    }
 
     console.log(`Worker: Found ${allMovies.length} movies to process.`);
+    allMovies = allMovies.filter(
+      (movie) => movie.genre && movie.genre.length > 0
+    );
+    console.log(`Worker: Filtered ${allMovies.length} valid movies.`);
 
-    // Prepare user ratings for recommendation calculation
+    if (!user.recommendations) {
+      user.recommendations = { status: "loading" };
+    } else {
+      user.recommendations.status = "loading";
+    }
+    await user.save();
+
     const ratedMovies = await Promise.all(
       user.movieRatings.map(async ({ tmdb_id, rating }) => {
         const movie = await Movie.findOne({ tmdb_id });
         return movie ? { ratedMovie: movie, rating } : null;
       })
     );
-    const userRatings = ratedMovies.filter((entry) => entry !== null);
+    const userRatings = ratedMovies.filter(Boolean);
+
+    if (userRatings.length === 0) {
+      throw new Error("No valid user ratings found.");
+    }
 
     console.log("Worker: Generating recommendations...");
     const recommendations = await generateRecommendations(
@@ -52,8 +83,8 @@ parentPort.on("message", async (userId) => {
       allMovies
     );
 
-    // Save updated recommendations
     user.recommendations = {
+      status: "ready",
       ...recommendations,
       lastUpdated: new Date(),
     };

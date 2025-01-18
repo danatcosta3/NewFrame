@@ -33,7 +33,9 @@ function NavBar() {
         </div>
         <div>
           <li className="text-prim-blue-p text-xl">Movies</li>
-          <li className="mt-1 hover:bg-slate-300 rounded">For you</li>
+          <Link to="/category/explore">
+            <li className="mt-1 hover:bg-slate-300 rounded">For you</li>
+          </Link>
           <Link to="/watchlist">
             <li className="mt-1 hover:bg-slate-300 rounded">Watch List</li>
           </Link>
@@ -41,14 +43,9 @@ function NavBar() {
             <li className="mt-1 hover:bg-slate-300 rounded">Similar Actors</li>
           </Link>
         </div>
-        <div>
-          <li className="text-prim-blue-p text-xl">Profile</li>
-          <li className="mt-1 hover:bg-slate-300 rounded">User</li>
-          <li className="mt-1 hover:bg-slate-300 rounded">Friends</li>
-        </div>
+
         <div>
           <li className="text-prim-blue-p text-xl">Contact</li>
-          <li className="mt-1 hover:bg-slate-300 rounded">Contact Us</li>
           <Link to="https://www.linkedin.com/in/danatcosta3/">
             <li className="mt-1 hover:bg-slate-300 rounded">
               Connect With Me On Linkedin

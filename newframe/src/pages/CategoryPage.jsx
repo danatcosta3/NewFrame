@@ -18,6 +18,8 @@ function CategoryPage() {
       setTitle("Trending");
     } else if (title === "actors") {
       setTitle("Similar Actor");
+    } else if (title === "explore") {
+      setTitle("Explore");
     }
 
     const fetchMovies = async () => {
@@ -28,6 +30,8 @@ function CategoryPage() {
           endpoint = "/movies/trending";
         } else if (genre === "actors") {
           endpoint = "/movies/actors";
+        } else if (genre === "explore") {
+          endpoint = "/movies/explore";
         } else {
           endpoint = `/movies/genre/${genre}`;
         }
@@ -55,9 +59,7 @@ function CategoryPage() {
       <div className="flex overflow-x-hidden">
         <NavBar />
         <div className="flex-1 ml-[20%] pt-5 pl-4">
-          {/* Category Title */}
           <h1 className="mt-4 font-bold text-3xl">{title} Movies:</h1>
-          {/* Movies List */}
           <div>
             {error ? (
               <p className="text-red-500">{error}</p>

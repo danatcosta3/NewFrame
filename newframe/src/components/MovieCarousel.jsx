@@ -61,7 +61,7 @@ function MovieCarousel({ title, movies, nav }) {
         {/* Movie Scroll Area */}
         <div
           ref={carouselRef}
-          className="flex overflow-x-scroll py-2 overflow-y-hidden gap-2 scrollbar-hide scroll-smooth"
+          className="flex overflow-x-scroll py-2 overflow-y-hidden gap-2 scrollbar-hide scroll-smooth w-full"
           style={{
             maxWidth: `${containerWidth}px`,
           }}

@@ -1,6 +1,8 @@
 import React from "react";
 import HomeNavBar from "../components/HomeNavBar";
 import Footer from "../components/Footer";
+import { useNavigate } from "react-router-dom";
+
 function HomePage() {
   return (
     <div>
@@ -8,7 +10,6 @@ function HomePage() {
       <div className="grid grid-cols-2 gap-8 items-center h-[calc(100vh-100px)] mx-auto px-8 max-w-screen-xl">
         {/* Left Text Section */}
         <div className="max-w-lg">
-          {/* <p className="text-lg text-prim-grey-p">-FREE ACCESS-</p> */}
           <h2 className="text-6xl mt-3 leading-tight font-bold ">
             The best way to find your next movie.
           </h2>
@@ -17,7 +18,10 @@ function HomePage() {
             Collaborate with a partner to choose the perfect film for any
             occasion. Explore movies tailored to your tastes and interests.
           </h4>
-          <button className="bg-prim-blue-p rounded text-white px-6 py-3 hover:bg-blue-400 font-normal mt-9 text-lg">
+          <button
+            onClick={() => navigate("/register")}
+            className="bg-prim-blue-p rounded text-white px-6 py-3 hover:bg-blue-400 font-normal mt-9 text-lg"
+          >
             Try For Free
           </button>
           <button className="px-6 py-3 border-prim-grey-p border rounded-md ml-2 text-lg hover:bg-[#F4F5F7]">

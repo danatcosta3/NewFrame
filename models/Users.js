@@ -29,6 +29,7 @@ const userSchema = new mongoose.Schema({
     required: true,
   },
   recommendations: {
+    status: String,
     general: Array,
     actors: Array,
     genres: Object,

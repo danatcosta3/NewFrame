@@ -1,9 +1,7 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import NavBar from "../components/NavBar";
 import ProfileSetupModal from "../components/ProfileSetupModal";
 import RatingModal from "../components/RatingModal";
-import { useState } from "react";
-import axios from "axios";
 import SearchBar from "../components/SearchBar";
 import MovieCarousel from "../components/MovieCarousel";
 import { useNavigate } from "react-router-dom";
@@ -17,8 +15,7 @@ function Dashboard() {
   const [watchlist, setWatchlist] = useState([]);
   const [general, setGeneral] = useState([]);
   const [actors, setActors] = useState([]);
-  const [genres, setGenres] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [genres, setGenres] = useState({});
   const [isFetchingRecommendations, setIsFetchingRecommendations] =
     useState(false);
 
@@ -56,24 +53,33 @@ function Dashboard() {
     fetchTrendingMovies();
   }, []);
 
-  const fetchRecommendations = async () => {
-    if (isFetchingRecommendations) return;
-    setIsFetchingRecommendations(true);
+  const fetchRecommendations = async (retryCount = 0) => {
+    if (retryCount === 0) setIsFetchingRecommendations(true);
 
     try {
       const response = await apiClient.get("/recommendations");
 
-      if (response.data) {
-        const { general = [], genres = {}, actors = [] } = response.data;
+      const { status, general = [], genres = {}, actors = [] } = response.data;
 
+      if (status === "ready") {
         setGeneral(general);
         setGenres(genres);
         setActors(actors);
+        setIsFetchingRecommendations(false);
+      } else if (status === "loading") {
+        setGeneral(general);
+        setGenres(genres);
+        setActors(actors);
+
+        if (retryCount < 10) {
+          setTimeout(() => fetchRecommendations(retryCount + 1), 5000);
+        } else {
+          console.warn("Failed to fetch recommendations after retries.");
+          setIsFetchingRecommendations(false);
+        }
       }
     } catch (error) {
       console.error("Error fetching recommendations:", error);
-    } finally {
-      setLoading(false);
       setIsFetchingRecommendations(false);
     }
   };
@@ -114,12 +120,15 @@ function Dashboard() {
       {showRatingModal && !showProfileModal && (
         <RatingModal onSubmit={handleRatingSubmit} />
       )}
-      {loading && (
-        <div className="loading-modal">
-          <p>Loading recommendations...</p>
-        </div>
-      )}
-      {!showProfileModal && !showRatingModal && !loading && (
+      {isFetchingRecommendations &&
+        general.length === 0 &&
+        actors.length === 0 &&
+        Object.keys(genres).length === 0 && (
+          <div className="loading-modal">
+            <p>Loading recommendations...</p>
+          </div>
+        )}
+      {!showProfileModal && !showRatingModal && (
         <div className="flex overflow-x-hidden">
           <NavBar />
           <div className="flex-1 ml-[20%] pt-5 pl-4">
